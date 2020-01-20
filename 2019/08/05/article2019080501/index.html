@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/luoyu2.jpg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/luoyu2.jpg">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="落雨个人博客" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: 'ZQ5JSVCIN5',
+      apiKey: '0f2cb20c35e184b029de56f0e76a44cc',
+      indexName: 'luoyu',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"输入关键字","hits_empty":"我们没有找到任何搜索结果: ${query}","hits_stats":"找到约${hits}条结果（用时${time}ms）"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":true,"preload":true},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="本文旨在解释RocketMQ4.3.x集群部署中，各个配置文件中各个属性参数各代表什么前言：该博客主要是记录自己成长的点滴，当然也希望能够帮助到读者，路过的大佬们不喜勿喷~">
+<meta property="og:type" content="article">
+<meta property="og:title" content="解释RocketMQ4.3.x集群部署中，各个配置文件中各个属性参数各代表什么">
+<meta property="og:url" content="http://yoursite.com/2019/08/05/article2019080501/index.html">
+<meta property="og:site_name" content="落雨个人博客">
+<meta property="og:description" content="本文旨在解释RocketMQ4.3.x集群部署中，各个配置文件中各个属性参数各代表什么前言：该博客主要是记录自己成长的点滴，当然也希望能够帮助到读者，路过的大佬们不喜勿喷~">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-08-05T14:39:31.000Z">
+<meta property="article:modified_time" content="2020-01-20T14:00:30.678Z">
+<meta property="article:author" content="落雨">
+<meta property="article:tag" content="中间件">
+<meta property="article:tag" content="RocketMQ">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2019/08/05/article2019080501/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>解释RocketMQ4.3.x集群部署中，各个配置文件中各个属性参数各代表什么 | 落雨个人博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <a href="https://github.com/luoyusoft" target="_blank" rel="noopener" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">落雨个人博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/05/article2019080501/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/luoyu2.jpg">
+      <meta itemprop="name" content="落雨">
+      <meta itemprop="description" content="不甘心，不将就，不服输">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="落雨个人博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          解释RocketMQ4.3.x集群部署中，各个配置文件中各个属性参数各代表什么
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-08-05 22:39:31" itemprop="dateCreated datePublished" datetime="2019-08-05T22:39:31+08:00">2019-08-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-01-20 22:00:30" itemprop="dateModified" datetime="2020-01-20T22:00:30+08:00">2020-01-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/" itemprop="url" rel="index">
+                    <span itemprop="name">中间件</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2019/08/05/article2019080501/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/08/05/article2019080501/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>9.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>9 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="本文旨在解释RocketMQ4-3-x集群部署中，各个配置文件中各个属性参数各代表什么"><a href="#本文旨在解释RocketMQ4-3-x集群部署中，各个配置文件中各个属性参数各代表什么" class="headerlink" title="本文旨在解释RocketMQ4.3.x集群部署中，各个配置文件中各个属性参数各代表什么"></a>本文旨在解释RocketMQ4.3.x集群部署中，各个配置文件中各个属性参数各代表什么</h4><p>前言：该博客主要是记录自己成长的点滴，当然也希望能够帮助到读者，路过的大佬们不喜勿喷<del>~</del></p>
+<a id="more"></a>
+<h4 id="前段时间闲着没事，跟一个小伙伴一起研究了下RocketMQ的集群部署，过程中找到这些干货，分享出来，后续会出RocketMQ的集群部署详细教程，敬请期待。"><a href="#前段时间闲着没事，跟一个小伙伴一起研究了下RocketMQ的集群部署，过程中找到这些干货，分享出来，后续会出RocketMQ的集群部署详细教程，敬请期待。" class="headerlink" title="前段时间闲着没事，跟一个小伙伴一起研究了下RocketMQ的集群部署，过程中找到这些干货，分享出来，后续会出RocketMQ的集群部署详细教程，敬请期待。"></a>前段时间闲着没事，跟一个小伙伴一起研究了下RocketMQ的集群部署，过程中找到这些干货，分享出来，后续会出RocketMQ的集群部署详细教程，敬请期待。</h4><h4 id="第一部分-NameServer配置属性"><a href="#第一部分-NameServer配置属性" class="headerlink" title="第一部分 NameServer配置属性"></a>第一部分 NameServer配置属性</h4><table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>参数类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>rocketmqHome</td>
+<td>String</td>
+<td>RockerMQ主目录，默认用户主目录</td>
+</tr>
+<tr>
+<td>namesrvAddr</td>
+<td>String</td>
+<td>NameServer地址</td>
+</tr>
+<tr>
+<td>kvConfigPath</td>
+<td>String</td>
+<td>kv配置文件路径，包含顺序消息主题的配置信息</td>
+</tr>
+<tr>
+<td>configStorePath</td>
+<td>String</td>
+<td>NameServer配置文件路径，建议使用-c指定NameServer配置文件路径</td>
+</tr>
+<tr>
+<td>clusterTest</td>
+<td>boolean</td>
+<td>是否开启集群测试，默认为false</td>
+</tr>
+<tr>
+<td>orderMessageEnable</td>
+<td>boolean</td>
+<td>是否支持顺序消息，默认为false</td>
+</tr>
+</tbody></table>
+<h4 id="第二部分-NameServer、Broker、filter网络配置属性"><a href="#第二部分-NameServer、Broker、filter网络配置属性" class="headerlink" title="第二部分 NameServer、Broker、filter网络配置属性"></a>第二部分 NameServer、Broker、filter网络配置属性</h4><table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>参数类型</th>
+<th>描述</th>
+<th>默认参数（时间为单位ms,数据单位为byte）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>accessMessageInMemoryMaxRatio</td>
+<td>int</td>
+<td>访问消息在内存中比率,默认为40</td>
+<td>40</td>
+</tr>
+<tr>
+<td>adminBrokerThreadPoolNums</td>
+<td>int</td>
+<td>服务端处理控制台管理命令线程池线程数量</td>
+<td>16</td>
+</tr>
+<tr>
+<td>autoCreateSubscriptionGroup</td>
+<td>boolean</td>
+<td>是否自动创建消费组</td>
+<td>true</td>
+</tr>
+<tr>
+<td>autoCreateTopicEnable</td>
+<td>boolean</td>
+<td>是否自动创建主题</td>
+<td>true</td>
+</tr>
+<tr>
+<td>bitMapLengthConsumeQueueExt</td>
+<td>int</td>
+<td>ConsumeQueue扩展过滤bitmap大小</td>
+<td>112</td>
+</tr>
+<tr>
+<td>brokerClusterName</td>
+<td>String</td>
+<td>Broker集群名称</td>
+<td>TestCluster</td>
+</tr>
+<tr>
+<td>brokerFastFailureEnable</td>
+<td>boolean</td>
+<td>是否支持broker快速失败 如果为true表示会立即清除发送消息线程池，消息拉取线程池中排队任务 ，直接返回系统错误</td>
+<td>true</td>
+</tr>
+<tr>
+<td>brokerId</td>
+<td>int</td>
+<td>brokerID 0表示主节点 大于0表示从节点</td>
+<td>0</td>
+</tr>
+<tr>
+<td>brokerIP1</td>
+<td>String</td>
+<td>Broker服务地址</td>
+<td>–</td>
+</tr>
+<tr>
+<td>brokerIP2</td>
+<td>String</td>
+<td>BrokerHAIP地址，供slave同步消息的地址</td>
+<td>–</td>
+</tr>
+<tr>
+<td>brokerName</td>
+<td>String</td>
+<td>Broker服务器名称morning服务器hostname</td>
+<td>broker-a</td>
+</tr>
+<tr>
+<td>brokerPermission</td>
+<td>int</td>
+<td>Broker权限 默认为6表示可读可写</td>
+<td>6</td>
+</tr>
+<tr>
+<td>brokerRole</td>
+<td>enum</td>
+<td>broker角色,分为 ASYNC_MASTER SYNC_MASTER, SLAVE</td>
+<td>ASYNC_MASTER</td>
+</tr>
+<tr>
+<td>brokerTopicEnable</td>
+<td>boolean</td>
+<td>broker名称是否可以用做主体使用</td>
+<td>true</td>
+</tr>
+<tr>
+<td>channelNotActiveInterval</td>
+<td>long</td>
+<td>–</td>
+<td>60000</td>
+</tr>
+<tr>
+<td>checkCRCOnRecover</td>
+<td>boolean</td>
+<td>文件恢复时是否校验CRC</td>
+<td>true</td>
+</tr>
+<tr>
+<td>cleanFileForciblyEnable</td>
+<td>boolean</td>
+<td>是否支持强行删除过期文件</td>
+<td>true</td>
+</tr>
+<tr>
+<td>cleanResourceInterval</td>
+<td>int</td>
+<td>清除过期文件线程调度频率</td>
+<td>10000</td>
+</tr>
+<tr>
+<td>clientAsyncSemaphoreValue</td>
+<td>int</td>
+<td>–</td>
+<td>65535</td>
+</tr>
+<tr>
+<td>clientCallbackExecutorThreads</td>
+<td>int</td>
+<td>–</td>
+<td>8</td>
+</tr>
+<tr>
+<td>clientChannelMaxIdleTimeSeconds</td>
+<td>int</td>
+<td>–</td>
+<td>120</td>
+</tr>
+<tr>
+<td>clientCloseSocketIfTimeout</td>
+<td>boolean</td>
+<td>–</td>
+<td>false</td>
+</tr>
+<tr>
+<td>clientManagerThreadPoolQueueCapacity</td>
+<td>int</td>
+<td>客户端管理线程池任务队列初始大小</td>
+<td>1000000</td>
+</tr>
+<tr>
+<td>clientManageThreadPoolNums</td>
+<td>int</td>
+<td>服务端处理客户端管理（心跳 注册 取消注册线程数量）</td>
+<td>32</td>
+</tr>
+<tr>
+<td>clientOnewaySemaphoreValue</td>
+<td>int</td>
+<td>–</td>
+<td>65535</td>
+</tr>
+<tr>
+<td>clientPooledByteBufAllocatorEnable</td>
+<td>boolean</td>
+<td>–</td>
+<td>false</td>
+</tr>
+<tr>
+<td>clientSocketRcvBufSize</td>
+<td>long</td>
+<td>客户端socket接收缓冲区大小</td>
+<td>131072</td>
+</tr>
+<tr>
+<td>clientSocketSndBufSize</td>
+<td>long</td>
+<td>客户端socket发送缓冲区大小</td>
+<td>131072</td>
+</tr>
+<tr>
+<td>clientWorkerThreads</td>
+<td>int</td>
+<td>–</td>
+<td>4</td>
+</tr>
+<tr>
+<td>clusterTopicEnable</td>
+<td>boolean</td>
+<td>集群名称是否可用在主题使用</td>
+<td>true</td>
+</tr>
+<tr>
+<td>commercialBaseCount</td>
+<td>int</td>
+<td>–</td>
+<td>1</td>
+</tr>
+<tr>
+<td>commercialBigCount</td>
+<td>int</td>
+<td>–</td>
+<td>1</td>
+</tr>
+<tr>
+<td>commercialEnable</td>
+<td>boolean</td>
+<td>–</td>
+<td>true</td>
+</tr>
+<tr>
+<td>commercialTimerCount</td>
+<td>int</td>
+<td>–</td>
+<td>1</td>
+</tr>
+<tr>
+<td>commercialTransCount</td>
+<td>int</td>
+<td>–</td>
+<td>1</td>
+</tr>
+<tr>
+<td>commitCommitLogLeastPages</td>
+<td>int</td>
+<td>一次提交至少需要脏页的数量,默认4页,针对 commitlog文件</td>
+<td>4</td>
+</tr>
+<tr>
+<td>commitCommitLogThoroughInterval</td>
+<td>int</td>
+<td>Commitlog两次提交的最大间隔,如果超过该间隔,将忽略commitCommitLogLeastPages直接提交</td>
+<td>200</td>
+</tr>
+<tr>
+<td>commitIntervalCommitLog</td>
+<td>int</td>
+<td>commitlog提交频率</td>
+<td>200</td>
+</tr>
+<tr>
+<td>compressedRegister</td>
+<td>boolean</td>
+<td>–</td>
+<td>false</td>
+</tr>
+<tr>
+<td>connectTimeoutMillis</td>
+<td>long</td>
+<td>链接超时时间</td>
+<td>3000</td>
+</tr>
+<tr>
+<td>consumerFallbehindThreshold</td>
+<td>long</td>
+<td>消息消费堆积阈值默认16GB在disableConsumeifConsumeIfConsumerReadSlowly为true时生效</td>
+<td>17179869184</td>
+</tr>
+<tr>
+<td>consumerManagerThreadPoolQueueCapacity</td>
+<td>int</td>
+<td>消费管理线程池任务队列大小</td>
+<td>1000000</td>
+</tr>
+<tr>
+<td>consumerManageThreadPoolNums</td>
+<td>int</td>
+<td>服务端处理消费管理 获取消费者列表 更新消费者进度查询消费进度等</td>
+<td>32</td>
+</tr>
+<tr>
+<td>debugLockEnable</td>
+<td>boolean</td>
+<td>是否支持 PutMessage Lock锁打印信息</td>
+<td>false</td>
+</tr>
+<tr>
+<td>defaultQueryMaxNum</td>
+<td>int</td>
+<td>查询消息默认返回条数,默认为32</td>
+<td>32</td>
+</tr>
+<tr>
+<td>defaultTopicQueueNums</td>
+<td>int</td>
+<td>主体在一个broker上创建队列数量</td>
+<td>8</td>
+</tr>
+<tr>
+<td>deleteCommitLogFilesInterval</td>
+<td>int</td>
+<td>删除commitlog文件的时间间隔，删除一个文件后等一下再删除一个文件</td>
+<td>100</td>
+</tr>
+<tr>
+<td>deleteConsumeQueueFilesInterval</td>
+<td>int</td>
+<td>删除consumequeue文件时间间隔</td>
+<td>100</td>
+</tr>
+<tr>
+<td>deleteWhen</td>
+<td>String</td>
+<td>磁盘文件空间充足情况下，默认每天什么时候执行删除过期文件，默认04表示凌晨4点</td>
+<td>04</td>
+</tr>
+<tr>
+<td>destroyMapedFileIntervalForcibly</td>
+<td>int</td>
+<td>销毁MappedFile被拒绝的最大存活时间，默认120s。清除过期文件线程在初次销毁mappedfile时，如果该文件被其他线程引用，引用次数大于0.则设置MappedFile的可用状态为false，并设置第一次删除时间，下一次清理任务到达时，如果系统时间大于初次删除时间加上本参数，则将ref次数一次减1000，知道引用次数小于0，则释放物理资源</td>
+<td>120000</td>
+</tr>
+<tr>
+<td>disableConsumeIfConsumerReadSlowly</td>
+<td>boolean</td>
+<td>如果消费组消息消费堆积是否禁用该消费组继续消费消息</td>
+<td>false</td>
+</tr>
+<tr>
+<td>diskFallRecorded</td>
+<td>boolean</td>
+<td>是否统计磁盘的使用情况,默认为true</td>
+<td>true</td>
+</tr>
+<tr>
+<td>diskMaxUsedSpaceRatio</td>
+<td>int</td>
+<td>commitlog目录所在分区的最大使用比例，如果commitlog目录所在的分区使用比例大于该值，则触发过期文件删除</td>
+<td>75</td>
+</tr>
+<tr>
+<td>duplicationEnable</td>
+<td>boolean</td>
+<td>是否允许重复复制,默认为 false</td>
+<td>false</td>
+</tr>
+<tr>
+<td>enableCalcFilterBitMap</td>
+<td>boolean</td>
+<td>是否开启比特位映射，这个属性不太明白</td>
+<td>false</td>
+</tr>
+<tr>
+<td>enableConsumeQueueExt</td>
+<td>boolean</td>
+<td>是否启用ConsumeQueue扩展属性</td>
+<td>false</td>
+</tr>
+<tr>
+<td>enablePropertyFilter</td>
+<td>boolean</td>
+<td>是否支持根据属性过滤 如果使用基于标准的sql92模式过滤消息则改参数必须设置为true</td>
+<td>false</td>
+</tr>
+<tr>
+<td>endTransactionPoolQueueCapacity</td>
+<td>int</td>
+<td>处理提交和回滚消息线程池线程队列大小</td>
+<td>100000</td>
+</tr>
+<tr>
+<td>endTransactionThreadPoolNums</td>
+<td>int</td>
+<td>处理提交和回滚消息线程池</td>
+<td>24</td>
+</tr>
+<tr>
+<td>expectConsumerNumUseFilter</td>
+<td>boolean</td>
+<td>布隆过滤器参数</td>
+<td>32</td>
+</tr>
+<tr>
+<td>fastFailIfNoBufferInStorePool</td>
+<td>boolean</td>
+<td>从 transientStorepool中获取 ByteBuffer是否支持快速失败</td>
+<td>false</td>
+</tr>
+<tr>
+<td>fetchNamesrvAddrByAddressServer</td>
+<td>boolean</td>
+<td>是否支持从服务器获取nameServer</td>
+<td>false</td>
+</tr>
+<tr>
+<td>fileReservedTime</td>
+<td>String</td>
+<td>文件保留时间，默认72小时，表示非当前写文件最后一次更新时间加上filereservedtime小与当前时间，该文件将被清理</td>
+<td>120</td>
+</tr>
+<tr>
+<td>filterDataCleanTimeSpan</td>
+<td>long</td>
+<td>清除过滤数据的时间间隔</td>
+<td>86400000</td>
+</tr>
+<tr>
+<td>filterServerNums</td>
+<td>int</td>
+<td>broker服务器过滤服务器数量</td>
+<td>0</td>
+</tr>
+<tr>
+<td>filterSupportRetry</td>
+<td>boolean</td>
+<td>消息过滤是否支持重试</td>
+<td>false</td>
+</tr>
+<tr>
+<td>flushCommitLogLeastPages</td>
+<td>int</td>
+<td>一次刷盘至少需要脏页的数量，针对commitlog文件</td>
+<td>4</td>
+</tr>
+<tr>
+<td>flushCommitLogThoroughInterval</td>
+<td>int</td>
+<td>commitlog两次刷盘的最大间隔,如果超过该间隔,将fushCommitLogLeastPages要求直接执行刷盘操作</td>
+<td>10000</td>
+</tr>
+<tr>
+<td>flushCommitLogTimed</td>
+<td>boolean</td>
+<td>表示await方法等待FlushIntervalCommitlog,如果为true表示使用Thread.sleep方法等待</td>
+<td>false</td>
+</tr>
+<tr>
+<td>flushConsumeQueueLeastPages</td>
+<td>int</td>
+<td>一次刷盘至少需要脏页的数量,默认2页,针对 Consume文件</td>
+<td>2</td>
+</tr>
+<tr>
+<td>flushConsumeQueueThoroughInterval</td>
+<td>int</td>
+<td>Consume两次刷盘的最大间隔,如果超过该间隔,将忽略</td>
+<td>60000</td>
+</tr>
+<tr>
+<td>flushConsumerOffsetHistoryInterval</td>
+<td>int</td>
+<td>fushConsumeQueueLeastPages直接刷盘</td>
+<td>60000</td>
+</tr>
+<tr>
+<td>flushConsumerOffsetInterval</td>
+<td>int</td>
+<td>持久化消息消费进度 consumerOffse.json文件的频率ms</td>
+<td>5000</td>
+</tr>
+<tr>
+<td>flushDelayOffsetInterval</td>
+<td>long</td>
+<td>延迟队列拉取进度刷盘间隔。默认10s</td>
+<td>10000</td>
+</tr>
+<tr>
+<td>flushDiskType</td>
+<td>enum</td>
+<td>刷盘方式,默认为 ASYNC_FLUSH(异步刷盘),可选值SYNC_FLUSH(同步刷盘)</td>
+<td>ASYNC_FLUSH</td>
+</tr>
+<tr>
+<td>flushIntervalCommitLog</td>
+<td>int</td>
+<td>commitlog刷盘频率</td>
+<td>500</td>
+</tr>
+<tr>
+<td>flushIntervalConsumeQueue</td>
+<td>int</td>
+<td>consumuQueue文件刷盘频率</td>
+<td>1000</td>
+</tr>
+<tr>
+<td>flushLeastPagesWhenWarmMapedFile</td>
+<td>int</td>
+<td>用字节0填充整个文件的,每多少页刷盘一次。默认4096页,异步刷盘模式生效</td>
+<td>4096</td>
+</tr>
+<tr>
+<td>forceRegister</td>
+<td>boolean</td>
+<td>是否强制注册</td>
+<td>true</td>
+</tr>
+<tr>
+<td>haHousekeepingInterval</td>
+<td>int</td>
+<td>Master与save长连接空闲时间,超过该时间将关闭连接</td>
+<td>20000</td>
+</tr>
+<tr>
+<td>haListenPort</td>
+<td>int</td>
+<td>Master监听端口,从服务器连接该端口,默认为10912</td>
+<td>10912</td>
+</tr>
+<tr>
+<td>haMasterAddress</td>
+<td>String</td>
+<td>Master服务器IP地址与端口号</td>
+<td>–</td>
+</tr>
+<tr>
+<td>haSendHeartbeatInterval</td>
+<td>int</td>
+<td>Master与Slave心跳包发送间隔</td>
+<td>5000</td>
+</tr>
+<tr>
+<td>haSlaveFallbehindMax</td>
+<td>int</td>
+<td>允许从服务器落户的最大偏移字节数,默认为256M。超过该值则表示该Slave不可用</td>
+<td>268435456</td>
+</tr>
+<tr>
+<td>haTransferBatchSize</td>
+<td>int</td>
+<td>一次HA主从同步传输的最大字节长度,默认为32K</td>
+<td>32768</td>
+</tr>
+<tr>
+<td>heartbeatThreadPoolNums</td>
+<td>int</td>
+<td>心跳线程池线程数</td>
+<td>8</td>
+</tr>
+<tr>
+<td>heartbeatThreadPoolQueueCapacity</td>
+<td>int</td>
+<td>心跳线程队列数量</td>
+<td>50000</td>
+</tr>
+<tr>
+<td>highSpeedMode</td>
+<td>boolean</td>
+<td>当前版本未使用</td>
+<td>false</td>
+</tr>
+<tr>
+<td>listenPort</td>
+<td>int</td>
+<td>服务端监听端口</td>
+<td>10911</td>
+</tr>
+<tr>
+<td>longPollingEnable</td>
+<td>boolean</td>
+<td>是否开启长轮训</td>
+<td>true</td>
+</tr>
+<tr>
+<td>mapedFileSizeCommitLog</td>
+<td>int</td>
+<td>单个conmmitlog文件大小默认1GB</td>
+<td>1073741824</td>
+</tr>
+<tr>
+<td>mapedFileSizeConsumeQueue</td>
+<td>int</td>
+<td>单个consumequeue文件大小默认30W*20表示单个Consumequeue文件中存储30W个ConsumeQueue条目</td>
+<td>6000000</td>
+</tr>
+<tr>
+<td>mappedFileSizeConsumeQueueExt</td>
+<td>int</td>
+<td>ConsumeQueue扩展文件大小默认48MB</td>
+<td>50331648</td>
+</tr>
+<tr>
+<td>maxDelayTime</td>
+<td>int</td>
+<td>当前版本未使用</td>
+<td>40</td>
+</tr>
+<tr>
+<td>maxErrorRateOfBloomFilter</td>
+<td>int</td>
+<td>布隆过滤器参数</td>
+<td>20</td>
+</tr>
+<tr>
+<td>maxHashSlotNum</td>
+<td>int</td>
+<td>单个索引文件hash槽的个数,默认为五百万</td>
+<td>5000000</td>
+</tr>
+<tr>
+<td>maxIndexNum</td>
+<td>int</td>
+<td>单个索引文件索引条目的个数,默认为两千万</td>
+<td>20000000</td>
+</tr>
+<tr>
+<td>maxMessageSize</td>
+<td>int</td>
+<td>默认允许的最大消息体默认4M</td>
+<td>4194304</td>
+</tr>
+<tr>
+<td>maxMsgsNumBatch</td>
+<td>int</td>
+<td>一次查询消息最大返回消息条数,默认64条</td>
+<td>64</td>
+</tr>
+<tr>
+<td>maxTransferBytesOnMessageInDisk</td>
+<td>–</td>
+<td>一次服务消息端消息拉取,消息在磁盘中传输允许的最大字节</td>
+<td>65536</td>
+</tr>
+<tr>
+<td>maxTransferBytesOnMessageInMemory</td>
+<td>int</td>
+<td>一次服务端消息拉取,消息在内存中传输允许的最大传输字节数默认256kb</td>
+<td>262144</td>
+</tr>
+<tr>
+<td>maxTransferCountOnMessageInDisk</td>
+<td>int</td>
+<td>一次消息服务端消息拉取,消息在磁盘中传输允许的最大条数,默认为8条</td>
+<td>8</td>
+</tr>
+<tr>
+<td>maxTransferCountOnMessageInMemory</td>
+<td>int</td>
+<td>一次服务消息拉取,消息在内存中传输运行的最大消息条数,默认为32条</td>
+<td>32</td>
+</tr>
+<tr>
+<td>messageDelayLevel</td>
+<td>String</td>
+<td>延迟队列等级（s=秒，m=分，h=小时）</td>
+<td>1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h</td>
+</tr>
+<tr>
+<td>messageIndexEnable</td>
+<td>boolean</td>
+<td>是否支持消息索引文件</td>
+<td>true</td>
+</tr>
+<tr>
+<td>messageIndexSafe</td>
+<td>boolean</td>
+<td>消息索引是否安全,默认为 false,文件恢复时选择文件检测点（commitlog.consumeque）的最小的与文件最后更新对比，如果为true，文件恢复时选择文件检测点保存的索引更新时间作为对比</td>
+<td>false</td>
+</tr>
+<tr>
+<td>messageStorePlugIn</td>
+<td>String</td>
+<td>消息存储插件地址默认为空字符串</td>
+<td>–</td>
+</tr>
+<tr>
+<td>namesrvAddr</td>
+<td>String</td>
+<td>nameServer地址</td>
+<td>–</td>
+</tr>
+<tr>
+<td>notifyConsumerIdsChangedEnable</td>
+<td>–</td>
+<td>消费者数量变化后是否立即通知RebalenceService线程，以便马上进行重新负载</td>
+<td>true</td>
+</tr>
+<tr>
+<td>offsetCheckInSlave</td>
+<td>boolean</td>
+<td>从服务器是否坚持 offset检测</td>
+<td>false</td>
+</tr>
+<tr>
+<td>osPageCacheBusyTimeOutMills</td>
+<td>long</td>
+<td>putMessage锁占用超过该时间,表示 PageCache忙</td>
+<td>1000</td>
+</tr>
+<tr>
+<td>pullMessageThreadPoolNums</td>
+<td>int</td>
+<td>服务端处理消息拉取线程池线程数量 默认为16加上当前操作系统CPU核数的两倍</td>
+<td>32</td>
+</tr>
+<tr>
+<td>pullThreadPoolQueueCapacity</td>
+<td>int</td>
+<td>消息拉去线程池任务队列初始大小</td>
+<td>100000</td>
+</tr>
+<tr>
+<td>putMsgIndexHightWater</td>
+<td>int</td>
+<td>当前版本未使用</td>
+<td>600000</td>
+</tr>
+<tr>
+<td>queryMessageThreadPoolNums</td>
+<td>int</td>
+<td>服务端处理查询消息线程池数量默认为8加上当前操作系统CPU核数的两倍</td>
+<td>16</td>
+</tr>
+<tr>
+<td>queryThreadPoolQueueCapacity</td>
+<td>int</td>
+<td>查询消息线程池任务队列初始大小</td>
+<td>20000</td>
+</tr>
+<tr>
+<td>redeleteHangedFileInterval</td>
+<td>int</td>
+<td>重试删除文件间隔，配合destorymapedfileintervalforcibly</td>
+<td>120000</td>
+</tr>
+<tr>
+<td>regionId</td>
+<td>String</td>
+<td>消息区域</td>
+<td>DefaultRegion</td>
+</tr>
+<tr>
+<td>registerBrokerTimeoutMills</td>
+<td>int</td>
+<td>注册broker超时时间</td>
+<td>6000</td>
+</tr>
+<tr>
+<td>registerNameServerPeriod</td>
+<td>int</td>
+<td>broker注册频率 大于1分钟为1分钟小于10秒为10秒</td>
+<td>30000</td>
+</tr>
+<tr>
+<td>rejectTransactionMessage</td>
+<td>boolean</td>
+<td>是否拒绝事物消息</td>
+<td>false</td>
+</tr>
+<tr>
+<td>rocketmqHome</td>
+<td>String</td>
+<td>RocketMQ主目录</td>
+<td>/home/rocketmq/rocketmq-all-4.3.2-bin-release</td>
+</tr>
+<tr>
+<td>sendMessageThreadPoolNums</td>
+<td>int</td>
+<td>服务端处理消息发送线程池数量</td>
+<td>1</td>
+</tr>
+<tr>
+<td>sendThreadPoolQueueCapacity</td>
+<td>int</td>
+<td>消息发送线程池任务队列初始大小</td>
+<td>10000</td>
+</tr>
+<tr>
+<td>serverAsyncSemaphoreValue</td>
+<td>int</td>
+<td>异步消息发送最大并发度</td>
+<td>64</td>
+</tr>
+<tr>
+<td>serverCallbackExecutorThreads</td>
+<td>int</td>
+<td>netty public任务线程池个数，netty网络设计没根据业务类型会创建不同线程池毛笔如处理发送消息，消息消费心跳检测等。如果业务类型（RequestCode）未注册线程池，则由public线程池执行</td>
+<td>0</td>
+</tr>
+<tr>
+<td>serverChannelMaxIdleTimeSeconds</td>
+<td>int</td>
+<td>网络连接最大空闲时间。如果链接空闲时间超过此参数设置的值，连接将被关闭</td>
+<td>120</td>
+</tr>
+<tr>
+<td>serverOnewaySemaphoreValue</td>
+<td>int</td>
+<td>send oneway消息请求并发度</td>
+<td>256</td>
+</tr>
+<tr>
+<td>serverPooledByteBufAllocatorEnable</td>
+<td>boolean</td>
+<td>ByteBuffer是否开启缓存</td>
+<td>true</td>
+</tr>
+<tr>
+<td>serverSelectorThreads</td>
+<td>int</td>
+<td>IO线程池线程个数，主要是NameServer.broker端解析请求，返回相应的线程个数，这类县城主要是处理网络请求的，解析请求包。然后转发到各个业务线程池完成具体的业务无操作，然后将结果在返回调用方</td>
+<td>3</td>
+</tr>
+<tr>
+<td>serverSocketRcvBufSize</td>
+<td>int</td>
+<td>netty网络socket接收缓存区大小16MB</td>
+<td>131072</td>
+</tr>
+<tr>
+<td>serverSocketSndBufSize</td>
+<td>int</td>
+<td>netty网络socket发送缓存区大小16MB</td>
+<td>131072</td>
+</tr>
+<tr>
+<td>serverWorkerThreads</td>
+<td>int</td>
+<td>netty业务线程池个数</td>
+<td>8</td>
+</tr>
+<tr>
+<td>shortPollingTimeMills</td>
+<td>long</td>
+<td>短轮训等待时间</td>
+<td>1000</td>
+</tr>
+<tr>
+<td>slaveReadEnable</td>
+<td>boolean</td>
+<td>从节点是否可读</td>
+<td>false</td>
+</tr>
+<tr>
+<td>startAcceptSendRequestTimeStamp</td>
+<td>int</td>
+<td>–</td>
+<td>0</td>
+</tr>
+<tr>
+<td>storePathCommitLog</td>
+<td>String</td>
+<td>Commitlog存储目录默认为${storePathRootDir}/commitlog</td>
+<td>/home/rocketmq/store/commitlog</td>
+</tr>
+<tr>
+<td>storePathRootDir</td>
+<td>String</td>
+<td>broker存储目录 默认为用户的主目录/store</td>
+<td>/home/rocketmq/store</td>
+</tr>
+<tr>
+<td>syncFlushTimeout</td>
+<td>long</td>
+<td>同步刷盘超时时间</td>
+<td>5000</td>
+</tr>
+<tr>
+<td>traceOn</td>
+<td>boolean</td>
+<td>–</td>
+<td>true</td>
+</tr>
+<tr>
+<td>transactionCheckInterval</td>
+<td>long</td>
+<td>事物回查周期</td>
+<td>60000</td>
+</tr>
+<tr>
+<td>transactionCheckMax</td>
+<td>int</td>
+<td>事物回查次数</td>
+<td>15</td>
+</tr>
+<tr>
+<td>transactionTimeOut</td>
+<td>long</td>
+<td>事物回查超时时间</td>
+<td>6000</td>
+</tr>
+<tr>
+<td>transferMsgByHeap</td>
+<td>boolean</td>
+<td>消息传输是否使用堆内存</td>
+<td>true</td>
+</tr>
+<tr>
+<td>transientStorePoolEnable</td>
+<td>boolean</td>
+<td>Commitlog是否开启 transientStorePool机制,默认为 false</td>
+<td>false</td>
+</tr>
+<tr>
+<td>transientStorePoolSize</td>
+<td>int</td>
+<td>transientStorePool中缓存 ByteBuffer个数,默认5个</td>
+<td>5</td>
+</tr>
+<tr>
+<td>useEpollNativeSelector</td>
+<td>boolean</td>
+<td>是否启用Epoll IO模型。Linux环境建议开启</td>
+<td>false</td>
+</tr>
+<tr>
+<td>useReentrantLockWhenPutMessage</td>
+<td>boolean</td>
+<td>消息存储到commitlog文件时获取锁类型，如果为true使用ReentrantLock否则使用自旋锁</td>
+<td>false</td>
+</tr>
+<tr>
+<td>useTLS</td>
+<td>boolean</td>
+<td>是否使用安全传输层协议</td>
+<td>false</td>
+</tr>
+<tr>
+<td>waitTimeMillsInHeartbeatQueue</td>
+<td>long</td>
+<td>清理broker心跳线程等待时间</td>
+<td>31000</td>
+</tr>
+<tr>
+<td>waitTimeMillsInPullQueue</td>
+<td>long</td>
+<td>清除消息拉取线程池任务队列的等待时间。如果系统时间减去任务放入队列中的时间小于waitTimeMillsInPullQueue，本次请求任务暂时不移除该任务</td>
+<td>5000</td>
+</tr>
+<tr>
+<td>waitTimeMillsInSendQueue</td>
+<td>long</td>
+<td>清除发送线程池任务队列的等待时间。如果系统时间减去任务放入队列中的时间小于waitTimeMillsInSendQueue，本次请求任务暂时不移除该任务</td>
+<td>200</td>
+</tr>
+<tr>
+<td>waitTimeMillsInTransactionQueue</td>
+<td>long</td>
+<td>清理提交和回滚消息线程队列等待时间</td>
+<td>3000</td>
+</tr>
+<tr>
+<td>warmMapedFileEnable</td>
+<td>boolean</td>
+<td>是否温和地使用 MappedFile如果为true,将不强制将内存映射文件锁定在内存中</td>
+<td>false</td>
+</tr>
+<tr>
+<td>connectWhichBroker</td>
+<td>String</td>
+<td>FilterServer连接的Broker地址</td>
+<td>–</td>
+</tr>
+<tr>
+<td>filterServerIP</td>
+<td>String</td>
+<td>FilterServerIP地址,默认为本地服务器IP</td>
+<td>–</td>
+</tr>
+<tr>
+<td>compressMsgBodyOverHowmuch</td>
+<td>int</td>
+<td>如果消息Body超过该值则启用</td>
+<td>–</td>
+</tr>
+<tr>
+<td>zipCompresslevel</td>
+<td>int</td>
+<td>Zip压缩方式,默认为5,详细定义请参考java.util.Deflate中的定义</td>
+<td>–</td>
+</tr>
+<tr>
+<td>clientUploadFilterClassEnable</td>
+<td>boolean</td>
+<td>是否支持客户端上传 FilterClass代码</td>
+<td>–</td>
+</tr>
+<tr>
+<td>filterClassRepertoryUrl</td>
+<td>String</td>
+<td>filterClass服务地址,如果 clientUploadFilterClassEnable为false,则需要提供一个地址从该服务器获取过滤类的代码</td>
+<td>–</td>
+</tr>
+<tr>
+<td>fsServerAsyncSemaphorevalue</td>
+<td>int</td>
+<td>FilterServer异步请求并发度,默认为2048</td>
+<td>–</td>
+</tr>
+<tr>
+<td>fsServerCallbackExecutorThreads</td>
+<td>int</td>
+<td>处理回调任务的线程池数量,默认为64</td>
+<td>–</td>
+</tr>
+<tr>
+<td>fsServerWorkerThreads</td>
+<td>int</td>
+<td>远程服务调用线程池数量,默认为64</td>
+<td>–</td>
+</tr>
+</tbody></table>
+<p>后记：本次的“解释RocketMQ4.3.x集群部署中，各个配置文件中各个属性参数各代表什么”教程到此结束，有任何意见或建议，欢迎留言讨论<del>~</del></p>
+
+    </div>
+
+    
+    
+    
+      
+        <div class="reward-container">
+  <div></div>
+  <button disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="落雨 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="落雨 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/" rel="tag"><i class="fa fa-tag"></i> 中间件</a>
+              <a href="/tags/RocketMQ/" rel="tag"><i class="fa fa-tag"></i> RocketMQ</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/07/07/article2019070701/" rel="next" title="解决IDEA创建maven webApp项目后，main文件夹下并没有java，resources等文件夹的问题">
+                  <i class="fa fa-chevron-left"></i> 解决IDEA创建maven webApp项目后，main文件夹下并没有java，resources等文件夹的问题
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2019/09/13/article2019091301/" rel="prev" title="springboot项目整合swagger2，并实现扫描多个不同包的接口">
+                  springboot项目整合swagger2，并实现扫描多个不同包的接口 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#本文旨在解释RocketMQ4-3-x集群部署中，各个配置文件中各个属性参数各代表什么"><span class="nav-number">1.</span> <span class="nav-text">本文旨在解释RocketMQ4.3.x集群部署中，各个配置文件中各个属性参数各代表什么</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#前段时间闲着没事，跟一个小伙伴一起研究了下RocketMQ的集群部署，过程中找到这些干货，分享出来，后续会出RocketMQ的集群部署详细教程，敬请期待。"><span class="nav-number">2.</span> <span class="nav-text">前段时间闲着没事，跟一个小伙伴一起研究了下RocketMQ的集群部署，过程中找到这些干货，分享出来，后续会出RocketMQ的集群部署详细教程，敬请期待。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#第一部分-NameServer配置属性"><span class="nav-number">3.</span> <span class="nav-text">第一部分 NameServer配置属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#第二部分-NameServer、Broker、filter网络配置属性"><span class="nav-number">4.</span> <span class="nav-text">第二部分 NameServer、Broker、filter网络配置属性</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="落雨"
+    src="/images/luoyu2.jpg">
+  <p class="site-author-name" itemprop="name">落雨</p>
+  <div class="site-description" itemprop="description">不甘心，不将就，不服输</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yourname" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.jianshu.com/u/ede51a29ab7e" title="简书 &amp;rarr; https:&#x2F;&#x2F;www.jianshu.com&#x2F;u&#x2F;ede51a29ab7e" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yourname@gmail.com" title="E-Mail &amp;rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/yourname" title="Weibo &amp;rarr; https:&#x2F;&#x2F;weibo.com&#x2F;yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://luoyublog.com/" title="https:&#x2F;&#x2F;luoyublog.com" rel="noopener" target="_blank">自己</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-star"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">落雨</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">40k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">36 分钟</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('https://cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'oc0J9g3fLSF0bKkjTjk03Kcv-gzGzoHsz',
+    appKey: 'NT3MYSNCn5Ddh5XXdb5Hwqgu',
+    placeholder: "欢迎畅所欲言...",
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: 'zh-CN' || 'zh-cn',
+    path: location.pathname,
+    recordIP: false,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/clicklove.js"></script>
