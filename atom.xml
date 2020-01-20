@@ -35,9 +35,9 @@
       <category term="后端" scheme="http://yoursite.com/categories/%E5%90%8E%E7%AB%AF/"/>
     
     
-      <category term="Java" scheme="http://yoursite.com/tags/Java/"/>
-    
       <category term="SpringBoot" scheme="http://yoursite.com/tags/SpringBoot/"/>
+    
+      <category term="Java" scheme="http://yoursite.com/tags/Java/"/>
     
       <category term="Quartz" scheme="http://yoursite.com/tags/Quartz/"/>
     
@@ -64,9 +64,9 @@
       <category term="后端" scheme="http://yoursite.com/categories/%E5%90%8E%E7%AB%AF/"/>
     
     
-      <category term="Java" scheme="http://yoursite.com/tags/Java/"/>
-    
       <category term="SpringBoot" scheme="http://yoursite.com/tags/SpringBoot/"/>
+    
+      <category term="Java" scheme="http://yoursite.com/tags/Java/"/>
     
       <category term="热部署" scheme="http://yoursite.com/tags/%E7%83%AD%E9%83%A8%E7%BD%B2/"/>
     
@@ -91,9 +91,9 @@
       <category term="后端" scheme="http://yoursite.com/categories/%E5%90%8E%E7%AB%AF/"/>
     
     
-      <category term="Java" scheme="http://yoursite.com/tags/Java/"/>
-    
       <category term="SpringBoot" scheme="http://yoursite.com/tags/SpringBoot/"/>
+    
+      <category term="Java" scheme="http://yoursite.com/tags/Java/"/>
     
       <category term="LogBack" scheme="http://yoursite.com/tags/LogBack/"/>
     
@@ -168,9 +168,9 @@
       <category term="后端" scheme="http://yoursite.com/categories/%E5%90%8E%E7%AB%AF/"/>
     
     
-      <category term="Java" scheme="http://yoursite.com/tags/Java/"/>
-    
       <category term="SpringBoot" scheme="http://yoursite.com/tags/SpringBoot/"/>
+    
+      <category term="Java" scheme="http://yoursite.com/tags/Java/"/>
     
       <category term="Swagger2" scheme="http://yoursite.com/tags/Swagger2/"/>
     
@@ -195,9 +195,9 @@
       <category term="后端" scheme="http://yoursite.com/categories/%E5%90%8E%E7%AB%AF/"/>
     
     
-      <category term="Java" scheme="http://yoursite.com/tags/Java/"/>
-    
       <category term="SpringBoot" scheme="http://yoursite.com/tags/SpringBoot/"/>
+    
+      <category term="Java" scheme="http://yoursite.com/tags/Java/"/>
     
       <category term="Swagger2" scheme="http://yoursite.com/tags/Swagger2/"/>
     
